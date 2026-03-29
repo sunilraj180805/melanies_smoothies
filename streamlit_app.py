@@ -28,10 +28,6 @@ my_dataframe = session.table("smoothies.public.fruit_options").select(col('FRUIT
 # Convert the Snowpark Dataframe to a Pandas Dataframe so we can use the LOC function
 pd_df = my_dataframe.to_pandas()
 
-# Optional: uncomment to debug
-# st.dataframe(pd_df)
-# st.stop()
-
 # -------------------------------
 # Multiselect
 # -------------------------------
@@ -56,24 +52,23 @@ if ingredients_list:
         # Use Pandas LOC function to get the correct SEARCH_ON value
         search_on = pd_df.loc[pd_df['FRUIT_NAME'] == fruit_chosen, 'SEARCH_ON'].iloc[0]
         
-        # Display the search value to the app (as requested by the course)
-        st.write('The search value for ', fruit_chosen,' is ', search_on, '.')
+        # Commented out as requested by the course instructions
+        # st.write('The search value for ', fruit_chosen,' is ', search_on, '.')
 
-        # Fetch nutrition info from Fruityvice API using the SEARCH_ON value
         st.subheader(fruit_chosen + ' Nutrition Information')
-        fruityvice_response = requests.get("https://fruityvice.com/api/fruit/" + search_on)
+        
+        # Fetch nutrition info from the new Smoothiefroot API using the SEARCH_ON value
+        smoothiefroot_response = requests.get(f"https://my.smoothiefroot.com/api/fruit/{search_on}")
         
         # Display the JSON results as a dataframe
-        st.dataframe(data=fruityvice_response.json(), use_container_width=True)
+        st.dataframe(data=smoothiefroot_response.json(), use_container_width=True)
 
     # -------------------------------
     # Insert Order into Snowflake
     # -------------------------------
-    # The submit button should only appear if they have chosen ingredients
     time_to_insert = st.button('Submit Order')
 
     if time_to_insert:
-        # We also want to make sure they entered a name before inserting!
         if name_on_order:
             try:
                 session.sql(
